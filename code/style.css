@@ -7,7 +7,6 @@ body {
   font-family: Arial, sans-serif;
   transition: background-color 0.5s, color 0.5s;
   z-index: 1;
-  white-space: nowrap;
 }
 .image-preview-container {
 display: flex;
@@ -73,7 +72,6 @@ padding: 18px;
 overflow-y: auto;
 z-index: 9;
 border: 2px solid #000000;
-white-space: wrap;
 }
 
 .settings-panel.open {
