@@ -15,7 +15,7 @@
 <img class="webside-background" src="https://i.imgur.com/aIRK8m0.jpg" id="background-image" alt="Background Image" style="top: 100px;left: 100px;">
 
 
-<div class="settings-panel" id="settingsPanel">
+<div class="settings-panel">
   <h2>Settings</h2>
   <div class="settings-inputs"><label for="brightnessSlider">Set website brightness:</label><input type="range" id="brightnessSlider" name="brightnessSlider" min="0" max="100" value="100"></div>
   <div class="settings-inputs"><label for="sizeSlider">Set image size:</label><input type="range" id="sizeSlider" name="sizeSlider" min="640" max="1280" step="64" value="640"></div>
@@ -28,12 +28,12 @@
 </div>
   
   
-<div class="image-preview-container">
+<div class="image-preview-container"style="white-space: nowrap;">
   <input type="file" id="file-input" accept="image/*" style="display: none;" onchange="previewImage(event)">
   <img id="image-preview" alt="Uploaded Image Preview" style="top: 110px;left: 203px;">
 </div>
 
-<div class="options-left">
+<div class="options-left"style="white-space: nowrap;">
   <div class="upload-button" onclick="document.getElementById('file-input').click();"><b><i class="fa fa-upload" style="position: absolute;top: 132px;left: 128px;z-index: 0;cursor: pointer;font-size:48px;color:rgb(50, 200, 0);text-shadow:2px 2px 4px #00000060;"></i></b></div>
   <div class="download-button" onclick="downloadImage()"><b><i class="fa fa-download" style="position: absolute;top: 228px;left: 128px;z-index: 0;cursor: pointer;font-size:48px;color:rgb(50, 200, 0);text-shadow:2px 2px 4px #00000060;"></i></b></div>
   <div class="signature-button" onclick="overlaySignature()"><b><i class="fa fa-pencil" style="position: absolute;top: 316px;left: 130px;z-index: 0;cursor: pointer;font-size:48px;color:rgb(0, 100, 200);text-shadow:2px 2px 4px #00000060;"></i></b></div>
@@ -42,7 +42,7 @@
   <div class="settings-button" onclick="toggleSettingsMenu()"><i class="fa fa-cog" style="position: absolute;top: 593px;left: 130px;z-index: 0;cursor: pointer;font-size:48px;color:rgb(0, 100, 200);text-shadow:2px 2px 4px #00000060;"></i></div>
 </div>
 
-<div class="options-right">
+<div class="options-right" style="white-space: nowrap;">
   <div class="color-overlay-button" style="position: absolute; top: 221px; left: 857px; z-index: 0; font-family: 'Arial Black', sans-serif; font-weight: bold; cursor: pointer; font-size: 18px;"><button onclick="applyColorOverlay()" style="font-family: 'Arial Black', sans-serif; font-weight: bold; font-size: 18px;">Overlay Color</button></div>
   <div class="color-overlay-input" style="position: absolute; top: 221px; left: 1050px; z-index: 0; font-size: 18px;"><label for="overlay-color" style="font-size: 18px;">Color:</label> <input type="text" id="overlay-color" placeholder="#ffffff" style="font-size: 18px;"><label for="overlay-opacity" style="font-size: 18px;">Opacity:</label> <input type="number" id="overlay-opacity" min="0" max="100" value="50" style="font-size: 18px;"><label for="overlay-gray-only" style="font-size: 18px;"><input type="checkbox" id="overlay-gray-only"> Gray Only</label></div>
     <div class="gray-brightness-button" style="position: absolute; top: 509px; left: 849px; z-index: 0; font-family: 'Arial Black', sans-serif; font-weight: bold; cursor: pointer; font-size: 18px;"><button onclick="applyGrayBrightness()" style="font-family: 'Arial Black', sans-serif; font-weight: bold; font-size: 18px;">Gray Brightness</button></div>
@@ -71,7 +71,7 @@
   #skin-viewer *{ background-image: "image-preview"; }
 </style>
 
-<div id="skin-viewer" class="mc-skin-viewer-11x spin" style="position: absolute; top: 847px; left: 570px; z-index: 11;">
+<div id="skin-viewer" class="mc-skin-viewer-11x spin" style="position: absolute; top: 847px; left: 570px; z-index: 11;white-space: nowrap;">
   <div class="player">
     <!-- Head -->
     <div class="head" >
