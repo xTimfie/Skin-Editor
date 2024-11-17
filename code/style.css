@@ -8,6 +8,8 @@ body {
   transition: background-color 0.5s, color 0.5s;
   z-index: 1;
   white-space: nowrap;
+  transform: scale(0.8);
+  transform-origin: 0 0;
 }
 .image-preview-container {
 display: flex;
@@ -24,8 +26,8 @@ position: absolute;
 z-index: 1;
 }
 #background-image {
-width: 1528px;
-height: 1185px;
+width: 1931px;
+height: auto;
 image-rendering: pixelated;
 position: absolute;
   z-index: -1;
@@ -60,14 +62,14 @@ input[type="file"] {
 display: none;
 }
 .settings-panel {
-position: fixed;
+position: absolute;
 top: 0;
 left: 0;
 width: 250px;
-height: 56%;
+height: 75%;
 background-color: #fff;
 box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
-transform: translateX(-100%);
+transform: translateX(-150%);
 transition: transform 0.3s ease, background-color 0.3s ease;
 padding: 18px;
 overflow-y: auto;
@@ -108,3 +110,7 @@ cursor: pointer;
 }
 
 #skin-viewer *{ background-image: "image-preview"; }
+
+input[type="checkbox"] {
+  transform: scale(2);
+}
