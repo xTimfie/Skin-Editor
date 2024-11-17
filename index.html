@@ -11,29 +11,29 @@
 </head>
 <body>
 
-<div class="horizontal">
+
 <img class="webside-background" src="https://i.imgur.com/aIRK8m0.jpg" id="background-image" alt="Background Image" style="top: 100px;left: 100px;">
 
 
-<div class="settings-panel">
+<div class="settings-panel" id="settingsPanel">
   <h2>Settings</h2>
-  <div class="settings-inputs"><label for="brightnessSlider">Set website brightness:</label><input type="range" id="brightnessSlider" name="brightnessSlider" min="0" max="100" value="100"></div>
-  <div class="settings-inputs"><label for="sizeSlider">Set image size:</label><input type="range" id="sizeSlider" name="sizeSlider" min="640" max="1280" step="64" value="640"></div>
-  <div class="settings-inputs"><label for="background-color-picker">Skin Preview Background Color:</label><input type="color" id="background-color-picker" value="#ffffff"></div>
-  <div class="settings-inputs"><label for="class-input" style="font-size: 18px;">Enter Element Class to Move:</label><input type="text" id="class-input" style="font-size: 18px;" oninput="updatePosition()"></div>
-  <div class="settings-inputs"><label for="top-slider" style="font-size: 18px;">Adjust Top Position:</label><input type="range" id="top-slider" min="0" max="1000" value="500" style="width: 100%;" oninput="updatePosition()"></div>
-  <div class="settings-inputs"><label for="left-slider" style="font-size: 18px;">Adjust Left Position:</label><input type="range" id="left-slider" min="0" max="1200" value="880" style="width: 100%;" oninput="updatePosition()"></div>
-  <div class="settings-inputs"><label for="current-top" style="font-size: 18px;">Current Top Position:</label><input type="text" id="current-top" readonly style="font-size: 18px; width: 100px;"></div>
-  <div class="settings-inputs"><label for="current-left" style="font-size: 18px;">Current Left Position:</label><input type="text" id="current-left" readonly style="font-size: 18px; width: 100px;"></div>
+  <div class="settings-inputs"><label for="brightnessSlider">Set website brightness:<br></label><input type="range" id="brightnessSlider" name="brightnessSlider" min="0" max="100" value="100"></div>
+  <div class="settings-inputs"><label for="sizeSlider">Set image size:<br></label><input type="range" id="sizeSlider" name="sizeSlider" min="640" max="1280" step="64" value="640"></div>
+  <div class="settings-inputs"><label for="background-color-picker">Skin Preview Background Color:<br></label><input type="color" id="background-color-picker" value="#ffffff"></div>
+  <div class="settings-inputs"><label for="class-input" style="font-size: 18px;">Enter Element Class to Move:<br></label><input type="text" id="class-input" style="font-size: 18px;" oninput="updatePosition()"></div>
+  <div class="settings-inputs"><label for="top-slider" style="font-size: 18px;">Adjust Top Position:<br></label><input type="range" id="top-slider" min="0" max="1000" value="500" style="width: 100%;" oninput="updatePosition()"></div>
+  <div class="settings-inputs"><label for="left-slider" style="font-size: 18px;">Adjust Left Position:<br></label><input type="range" id="left-slider" min="0" max="1200" value="880" style="width: 100%;" oninput="updatePosition()"></div>
+  <div class="settings-inputs"><label for="current-top" style="font-size: 18px;">Current Top Position:<br></label><input type="text" id="current-top" readonly style="font-size: 18px; width: 100px;"></div>
+  <div class="settings-inputs"><label for="current-left" style="font-size: 18px;">Current Left Position:<br></label><input type="text" id="current-left" readonly style="font-size: 18px; width: 100px;"></div>
 </div>
   
   
-<div class="image-preview-container"style="white-space: nowrap;">
+<div class="image-preview-container">
   <input type="file" id="file-input" accept="image/*" style="display: none;" onchange="previewImage(event)">
   <img id="image-preview" alt="Uploaded Image Preview" style="top: 110px;left: 203px;">
 </div>
 
-<div class="options-left"style="white-space: nowrap;">
+<div class="options-left">
   <div class="upload-button" onclick="document.getElementById('file-input').click();"><b><i class="fa fa-upload" style="position: absolute;top: 132px;left: 128px;z-index: 0;cursor: pointer;font-size:48px;color:rgb(50, 200, 0);text-shadow:2px 2px 4px #00000060;"></i></b></div>
   <div class="download-button" onclick="downloadImage()"><b><i class="fa fa-download" style="position: absolute;top: 228px;left: 128px;z-index: 0;cursor: pointer;font-size:48px;color:rgb(50, 200, 0);text-shadow:2px 2px 4px #00000060;"></i></b></div>
   <div class="signature-button" onclick="overlaySignature()"><b><i class="fa fa-pencil" style="position: absolute;top: 316px;left: 130px;z-index: 0;cursor: pointer;font-size:48px;color:rgb(0, 100, 200);text-shadow:2px 2px 4px #00000060;"></i></b></div>
@@ -42,10 +42,10 @@
   <div class="settings-button" onclick="toggleSettingsMenu()"><i class="fa fa-cog" style="position: absolute;top: 593px;left: 130px;z-index: 0;cursor: pointer;font-size:48px;color:rgb(0, 100, 200);text-shadow:2px 2px 4px #00000060;"></i></div>
 </div>
 
-<div class="options-right" style="white-space: nowrap;">
+<div class="options-right">
   <div class="color-overlay-button" style="position: absolute; top: 221px; left: 857px; z-index: 0; font-family: 'Arial Black', sans-serif; font-weight: bold; cursor: pointer; font-size: 18px;"><button onclick="applyColorOverlay()" style="font-family: 'Arial Black', sans-serif; font-weight: bold; font-size: 18px;">Overlay Color</button></div>
   <div class="color-overlay-input" style="position: absolute; top: 221px; left: 1050px; z-index: 0; font-size: 18px;"><label for="overlay-color" style="font-size: 18px;">Color:</label> <input type="text" id="overlay-color" placeholder="#ffffff" style="font-size: 18px;"><label for="overlay-opacity" style="font-size: 18px;">Opacity:</label> <input type="number" id="overlay-opacity" min="0" max="100" value="50" style="font-size: 18px;"><label for="overlay-gray-only" style="font-size: 18px;"><input type="checkbox" id="overlay-gray-only"> Gray Only</label></div>
-    <div class="gray-brightness-button" style="position: absolute; top: 509px; left: 849px; z-index: 0; font-family: 'Arial Black', sans-serif; font-weight: bold; cursor: pointer; font-size: 18px;"><button onclick="applyGrayBrightness()" style="font-family: 'Arial Black', sans-serif; font-weight: bold; font-size: 18px;">Gray Brightness</button></div>
+  <div class="gray-brightness-button" style="position: absolute; top: 509px; left: 849px; z-index: 0; font-family: 'Arial Black', sans-serif; font-weight: bold; cursor: pointer; font-size: 18px;"><button onclick="applyGrayBrightness()" style="font-family: 'Arial Black', sans-serif; font-weight: bold; font-size: 18px;">Gray Brightness</button></div>
   <div class="gray-brightness-input" style="position: absolute; top: 514px; left: 1056px; z-index: 0; font-size: 18px;"><label for="lightest-gray-slider" style="font-size: 18px;">Brightness:</label> <input type="range" id="lightest-gray-slider" min="0" max="255" value="255" oninput="updateGrayValue(this.value)" style="font-size: 18px;"><span id="gray-level-display" style="font-size: 18px;">255</span></div>
   <div class="color-change-button" style="position: absolute; top: 293px; left: 861px; z-index: 0; font-family: 'Arial Black', sans-serif; font-weight: bold; cursor: pointer; font-size: 18px;"><button onclick="changeColor()" style="font-family: 'Arial Black', sans-serif; font-weight: bold; font-size: 18px;">Change Color</button></div>
   <div class="color-change-input" style="position: absolute; top: 295px; left: 1052px; z-index: 0; font-size: 18px;"><label for="color-to-replace" style="font-size: 18px;">From:</label> <input type="text" id="color-to-replace" placeholder="#000000" style="font-size: 18px;"><label for="new-color" style="font-size: 18px;">To:</label> <input type="text" id="new-color" placeholder="#ffffff" style="font-size: 18px;"></div>
@@ -64,117 +64,18 @@
   <div class="colorless-button" style="display: inline-block; background-color: transparent; position: absolute; top: 872px; left: 845px; z-index: 0; cursor: pointer;"><button onclick="makeBlackAndWhite()" style="font-family: 'Arial Black', sans-serif; font-weight: bold; font-size: 18px; letter-spacing: 1px;">Make Colorless</button></div>
   <div class="erase-pixel-button" style="position: absolute; top: 944px; left: 866px; z-index: 0; font-family: 'Arial Black', sans-serif; font-weight: bold; cursor: pointer; font-size: 18px;"><button onclick="toggleErase()" style="font-family: 'Arial Black', sans-serif; font-weight: bold; font-size: 18px;">Erase Pixels</button></div>
   <div class="draw-pixel-button" id="draw-pixel-button" style="position: absolute; top: 1016px; left: 881px; z-index: 0; font-family: 'Arial Black', sans-serif; font-weight: bold; cursor: pointer; font-size: 18px;" onclick="toggleDraw()">Draw Pixels</div>
-  <div class="color-picker-container" style="position: absolute; top: 1016px; left: 1052px; font-size: 18px;"><label for="color-picker">Select Color:</label><input type="color" id="color-picker" value="#000000" style="font-size: 18px;"><label for="hex-color">Hex Code:</label><input type="text" id="hex-color" value="#000000" style="font-size: 18px;"></div>
+  <div class="draw-pixel-options" style="margin-top: 10px; text-align: center; font-size: 18px; position: absolute; top: 1010px; left: 1330px;"><label for="color-from-picker"style="font-size: 18px; margin-right: 10px;"> or use Color Picker:</label><input type="checkbox"id="color-from-picker"style="font-size: 18px;"></div>
+  <div class="color-picker-container" style="position: absolute; top: 1016px; left: 1052px; font-size: 18px;"><label for="color-picker">Color:</label><input type="color" id="color-picker" value="#000000" style="font-size: 18px;"><label for="hex-color">or Hex:</label><input type="text" id="hex-color" value="#000000" size="8" style="font-size: 18px;"></div>
 </div>
 
-<style>
-  #skin-viewer *{ background-image: "image-preview"; }
-</style>
-
-<div id="skin-viewer" class="mc-skin-viewer-11x spin" style="position: absolute; top: 847px; left: 570px; z-index: 11;white-space: nowrap;">
+<div id="skin-viewer" class="mc-skin-viewer-11x spin" style="position: absolute; top: 847px; left: 570px; z-index: 11;">
   <div class="player">
-    <!-- Head -->
-    <div class="head" >
-      <div class="top"></div>
-      <div class="left"></div>
-      <div class="front"></div>
-      <div class="right"></div>
-      <div class="back"></div>
-      <div class="bottom"></div>
-      <div class="accessory">
-        <div class="top"></div>
-        <div class="left"></div>
-        <div class="front"></div>
-        <div class="right"></div>
-        <div class="back"></div>
-        <div class="bottom"></div>
-      </div>
-    </div>
-    <!-- Body -->
-    <div class="body">
-      <div class="top"></div>
-      <div class="left"></div>
-      <div class="front"></div>
-      <div class="right"></div>
-      <div class="back"></div>
-      <div class="bottom"></div>
-      <div class="accessory">
-        <div class="top"></div>
-        <div class="left"></div>
-        <div class="front"></div>
-        <div class="right"></div>
-        <div class="back"></div>
-        <div class="bottom"></div>
-      </div>
-    </div>
-    <!-- Left Arm -->
-    <div class="left-arm">
-      <div class="top"></div>
-      <div class="left"></div>
-      <div class="front"></div>
-      <div class="right"></div>
-      <div class="back"></div>
-      <div class="bottom"></div>
-      <div class="accessory">
-        <div class="top"></div>
-        <div class="left"></div>
-        <div class="front"></div>
-        <div class="right"></div>
-        <div class="back"></div>
-        <div class="bottom"></div>
-      </div>
-    </div>
-    <!-- Right Arm -->
-    <div class="right-arm">
-      <div class="top"></div>
-      <div class="left"></div>
-      <div class="front"></div>
-      <div class="right"></div>
-      <div class="back"></div>
-      <div class="bottom"></div>
-      <div class="accessory">
-        <div class="top"></div>
-        <div class="left"></div>
-        <div class="front"></div>
-        <div class="right"></div>
-        <div class="back"></div>
-        <div class="bottom"></div>
-      </div>
-    </div>
-    <!-- Left Leg -->
-    <div class="left-leg">
-      <div class="top"></div>
-      <div class="left"></div>
-      <div class="front"></div>
-      <div class="right"></div>
-      <div class="back"></div>
-      <div class="bottom"></div>
-      <div class="accessory">
-        <div class="top"></div>
-        <div class="left"></div>
-        <div class="front"></div>
-        <div class="right"></div>
-        <div class="back"></div>
-        <div class="bottom"></div>
-      </div>
-    </div>
-    <!-- Right Leg -->
-    <div class="right-leg">
-      <div class="top"></div>
-      <div class="left"></div>
-      <div class="front"></div>
-      <div class="right"></div>
-      <div class="back"></div>
-      <div class="bottom"></div>
-      <div class="accessory">
-        <div class="top"></div>
-        <div class="left"></div>
-        <div class="front"></div>
-        <div class="right"></div>
-        <div class="back"></div>
-        <div class="bottom"></div>
-      </div>
-    </div>
+    <div class="head" ><div class="top"></div><div class="left"></div><div class="front"></div><div class="right"></div><div class="back"></div><div class="bottom"></div><div class="accessory"><div class="top"></div><div class="left"></div><div class="front"></div><div class="right"></div><div class="back"></div><div class="bottom"></div></div></div>
+    <div class="body"><div class="top"></div><div class="left"></div><div class="front"></div><div class="right"></div><div class="back"></div><div class="bottom"></div><div class="accessory"><div class="top"></div><div class="left"></div><div class="front"></div><div class="right"></div><div class="back"></div><div class="bottom"></div></div></div>
+    <div class="left-arm"><div class="top"></div><div class="left"></div><div class="front"></div><div class="right"></div><div class="back"></div><div class="bottom"></div><div class="accessory"><div class="top"></div><div class="left"></div><div class="front"></div><div class="right"></div><div class="back"></div><div class="bottom"></div></div></div>
+    <div class="right-arm"><div class="top"></div><div class="left"></div><div class="front"></div><div class="right"></div><div class="back"></div><div class="bottom"></div><div class="accessory"><div class="top"></div><div class="left"></div><div class="front"></div><div class="right"></div><div class="back"></div><div class="bottom"></div></div></div>
+    <div class="left-leg"><div class="top"></div><div class="left"></div><div class="front"></div><div class="right"></div><div class="back"></div><div class="bottom"></div><div class="accessory"><div class="top"></div><div class="left"></div><div class="front"></div><div class="right"></div><div class="back"></div><div class="bottom"></div></div></div>
+    <div class="right-leg"><div class="top"></div><div class="left"></div><div class="front"></div><div class="right"></div><div class="back"></div><div class="bottom"></div><div class="accessory"><div class="top"></div><div class="left"></div><div class="front"></div><div class="right"></div><div class="back"></div><div class="bottom"></div></div></div>
   </div>
 </div>
 
