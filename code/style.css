@@ -73,6 +73,7 @@ padding: 18px;
 overflow-y: auto;
 z-index: 9;
 border: 2px solid #000000;
+white-space: rap;
 }
 
 .settings-panel.open {
