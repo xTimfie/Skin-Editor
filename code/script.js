@@ -208,7 +208,6 @@ function updateSkinViewerStyle(image) {
 
 function saveState(actionDescription = '') {
   const preview = document.getElementById('image-preview');
-  const skinViewer = document.getElementById('skin-viewer');
   if (preview.src) {
     const img = new Image();
     img.src = preview.src;
@@ -227,7 +226,15 @@ function saveState(actionDescription = '') {
         undoStack.shift();
       }
       redoStack = [];
-      skinViewer.style.backgroundImage = `url('${imageData}')`;
+      const skinViewer = document.getElementById('skin-viewer');
+        let styleBlock = document.getElementById('dynamic-style');
+        if (!styleBlock) {
+          styleBlock = document.createElement('style');
+          styleBlock.id = 'dynamic-style';
+          document.head.appendChild(styleBlock);
+        }
+        styleBlock.textContent = `#skin-viewer * { background-image: url('${skinViewer}'); }`;
+        updateSkinViewerStyle(img);
       displayHistory();
     };
   } else {
