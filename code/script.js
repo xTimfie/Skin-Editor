@@ -107,7 +107,7 @@ function toggleSettingsMenu() {
 
     function loadPlaceholder() {
       if (!placeholderLoaded) {
-        const placeholderUrl = 'https://i.imgur.com/PJ2734Y.jpg';
+        const placeholderUrl = 'https://i.imgur.com/auCxTgN.jpg';
         const preview = document.getElementById('image-preview');
         preview.src = placeholderUrl;
         const skinViewerPlaceholder = 'https://i.imgur.com/JXntmsC.jpg';
@@ -915,22 +915,26 @@ function updatePosition() {
 }
 
 function displayImageBackground(backgroundcolor) {
-  let square = document.getElementById('image-background-square');
-  if (!square) {
-    square = document.createElement('div');
-    square.id = 'image-background-square';
-    square.style.position = 'absolute';
-    square.style.top = '110px';
-    square.style.left = '203px';
-    square.style.width = '640px';
-    square.style.height = '640px';
-    square.style.zIndex = '0';
-    document.body.appendChild(square);
+  const square1Position = { top: '232px', left: '326px', width: '640px', height: '640px'};
+  const square2Position = { top: '920px', left: '550px', width: '450px', height: '700px'};
+  function createSquare(id, position) {
+    let square = document.getElementById(id);
+    if (!square) {
+      square = document.createElement('div');
+      square.id = id;
+      square.style.position = 'absolute';
+      square.style.zIndex = '-2';
+      document.body.appendChild(square);
+    }
+    square.style.top = position.top;
+    square.style.left = position.left;
+    square.style.width = position.width;
+    square.style.height = position.height;
+    square.style.backgroundColor = backgroundcolor || '#ffffff';
   }
-  square.style.backgroundColor = backgroundcolor || '#ffffff';
+  createSquare('image-background-square-1', square1Position);
+  createSquare('image-background-square-2', square2Position);
 }
-
-displayImageBackground('#ffffff');
 document.getElementById('background-color-picker').addEventListener('input', function () {
-displayImageBackground(this.value);
+  displayImageBackground(this.value);
 });
