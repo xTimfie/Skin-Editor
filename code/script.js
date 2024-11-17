@@ -637,38 +637,71 @@ function makeBlackAndWhite() {
 
 
 function overlayCustomImage(event) {
-    if (!originalImage || isPlaceholder) {
-        alert("Please upload an image first.");
-        return;
-    }
-    const file = event.target.files[0];
-    if (!file) return;
-    const overlayImage = new Image();
-    overlayImage.src = URL.createObjectURL(file);
-    overlayImage.onload = function () {
-        const canvas = document.createElement('canvas');
-        canvas.width = 64;
-        canvas.height = 64;
-        const ctx = canvas.getContext('2d');
+  if (!originalImage || isPlaceholder) {
+      alert("Please upload an image first.");
+      return;
+  }
+  const file = event.target.files[0];
+  if (!file) return;
+  const overlayImage = new Image();
+  overlayImage.src = URL.createObjectURL(file);
+  overlayImage.onload = function () {
+      const canvas = document.createElement('canvas');
+      canvas.width = 64;
+      canvas.height = 64;
+      const ctx = canvas.getContext('2d');
+      const placement = document.getElementById('placement-select').value;
+      const gravityEnabled = document.getElementById('gravity-toggle').checked;
+      ctx.drawImage(originalImage, 0, 0, 64, 64);
+      const imageData = ctx.getImageData(0, 0, 64, 64);
+      const data = imageData.data;
+      const overlayCanvas = document.createElement('canvas');
+      overlayCanvas.width = overlayImage.width;
+      overlayCanvas.height = overlayImage.height;
+      const overlayCtx = overlayCanvas.getContext('2d');
+      overlayCtx.drawImage(overlayImage, 0, 0);
+      const overlayData = overlayCtx.getImageData(0, 0, overlayImage.width, overlayImage.height);
+      const overlayPixels = overlayData.data;
+      for (let y = 0; y < overlayImage.height; y++) {
+          for (let x = 0; x < overlayImage.width; x++) {
+              const idx = (y * overlayImage.width + x) * 4;
+              const overlayAlpha = overlayPixels[idx + 3];
+              if (overlayAlpha > 0) {
+                  if (gravityEnabled) {
+                      const targetIdx = (y * 64 + x) * 4;
+                      const originalAlpha = data[targetIdx + 3];
+                      if (originalAlpha > 0) {
+                          data[targetIdx] = overlayPixels[idx];
+                          data[targetIdx + 1] = overlayPixels[idx + 1];
+                          data[targetIdx + 2] = overlayPixels[idx + 2];
+                          data[targetIdx + 3] = 255;
+                      }
+                  } else {
+                      const targetIdx = (y * 64 + x) * 4;
+                      data[targetIdx] = overlayPixels[idx];
+                      data[targetIdx + 1] = overlayPixels[idx + 1];
+                      data[targetIdx + 2] = overlayPixels[idx + 2];
+                      data[targetIdx + 3] = 255;
+                  }
+              }
+          }
+      }
+      ctx.putImageData(imageData, 0, 0);
+      const preview = document.getElementById('image-preview');
+      preview.src = canvas.toDataURL();
+      const combinedImage = new Image();
+      combinedImage.src = canvas.toDataURL();
+      originalImage = combinedImage;
+      saveState('Applied a custom Image Overlay');
+  };
+  overlayImage.onerror = function () {
+      alert('Error loading the overlay image.');
+  };
+}
 
-        const placement = document.getElementById('placement-select').value;
-        if (placement === "Under") {
-            ctx.drawImage(overlayImage, 0, 0, 64, 64);
-            ctx.drawImage(originalImage, 0, 0, 64, 64);
-        } else {
-            ctx.drawImage(originalImage, 0, 0, 64, 64);
-            ctx.drawImage(overlayImage, 0, 0, 64, 64);
-        }
-        const preview = document.getElementById('image-preview');
-        preview.src = canvas.toDataURL();
-        const combinedImage = new Image();
-        combinedImage.src = canvas.toDataURL();
-        originalImage = combinedImage;
-        saveState('Applied a custom Image Overlay');
-    };
-    overlayImage.onerror = function () {
-        alert('Error loading the overlay image.');
-    };
+function isTransparent(y, x, imageData) {
+  const idx = (y * 64 + x) * 4;
+  return imageData[idx + 3] === 0;
 }
 
 
