@@ -52,14 +52,14 @@ document.getElementById('brightnessSlider').addEventListener('input', function()
       const imagePreview = document.getElementById('image-preview');
       imagePreview.style.borderColor = brightness < 50 ? 'white' : 'black';
     });
-
     document.getElementById('image-preview').addEventListener('click', function(event) {
       const imagePreview = document.getElementById('image-preview');
       const rect = imagePreview.getBoundingClientRect();
       const x = event.clientX - rect.left;
       const y = event.clientY - rect.top;
+    
       console.log(`Clicked at: (${x}, ${y})`);
-
+    
       if (pickingEnabled) {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
@@ -72,6 +72,8 @@ document.getElementById('brightnessSlider').addEventListener('input', function()
                                        1, 1).data;
         const hex = rgbToHex(pixel[0], pixel[1], pixel[2]);
         document.getElementById('colorDisplay').value = hex;
+        currentColor = hex;
+        console.log("Picked color from image:", currentColor);
       }
     });
     document.getElementById('hex-color').addEventListener('input', function(event) {
@@ -82,6 +84,11 @@ document.getElementById('brightnessSlider').addEventListener('input', function()
       } else {
         console.log("Invalid hex code entered:", hexValue);
       }
+    });
+
+    document.getElementById('color-from-picker').addEventListener('change', function(event) {
+      pickingEnabled = event.target.checked;  // Set pickingEnabled based on the checkbox state
+      console.log(pickingEnabled ? "Color picker enabled." : "Color picker disabled.");
     });
 
 window.onload = function() {
@@ -243,16 +250,32 @@ function saveState(actionDescription = '') {
 }
 
 
-function togglePicking() {
-  if (!originalImage || isPlaceholder) {
-    alert("Please upload an image first.");
-    return;
+function resetTools(excludeTool = null) {
+  if (excludeTool !== 'picking') {
+    pickingEnabled = false;
+    const pickingButton = document.querySelector('.color-pick-button button');
+    if (pickingButton) pickingButton.style.color = '';
   }
-  pickingEnabled = !pickingEnabled;
-  const button = document.querySelector('.color-pick-button button');
+  if (excludeTool !== 'erase') {
+    eraseEnabled = false;
+    const eraseButton = document.querySelector('.erase-pixel-button button');
+    if (eraseButton) eraseButton.style.color = '';
+  }
+  if (excludeTool !== 'draw') {
+    drawEnabled = false;
+    const drawButton = document.querySelector('.draw-pixel-button');
+    if (drawButton) drawButton.style.color = '';
+  }
   const image = document.getElementById('image-preview');
-  if (pickingEnabled) {
-    button.style.color = '#32c800';
+  if (image) {
+    image.classList.remove('pointer-cursor');
+  }
+}
+
+function updateToolUI(button, color, isActive) {
+  const image = document.getElementById('image-preview');
+  if (isActive) {
+    button.style.color = color;
     if (image) {
       image.classList.add('pointer-cursor');
     }
@@ -262,6 +285,23 @@ function togglePicking() {
       image.classList.remove('pointer-cursor');
     }
   }
+}
+
+function togglePicking() {
+  if (!originalImage || isPlaceholder) {
+    alert("Please upload an image first.");
+    return;
+  }
+  if (pickingEnabled) {
+    pickingEnabled = false;
+    const button = document.querySelector('.color-pick-button button');
+    updateToolUI(button, '#32c800', false);
+    return;
+  }
+  resetTools('picking');
+  pickingEnabled = true;
+  const button = document.querySelector('.color-pick-button button');
+  updateToolUI(button, '#32c800', true);
 }
 
 function toggleErase() {
@@ -269,31 +309,50 @@ function toggleErase() {
     alert("Please upload an image first.");
     return;
   }
-  eraseEnabled = !eraseEnabled;
-  const button = document.querySelector('.erase-pixel-button button');
-  const image = document.getElementById('image-preview');
   if (eraseEnabled) {
-      button.style.color = '#c83232';
-      image.classList.add('pointer-cursor');
-  } else {
-      button.style.color = '';
-      image.classList.remove('pointer-cursor');
+    eraseEnabled = false;
+    const button = document.querySelector('.erase-pixel-button button');
+    updateToolUI(button, '#c83232', false);
+    return;
   }
+  resetTools('erase');
+  eraseEnabled = true;
+  const button = document.querySelector('.erase-pixel-button button');
+  updateToolUI(button, '#c83232', true);
 }
 
 function toggleDraw() {
-  drawEnabled = !drawEnabled;
-  const button = document.querySelector('.draw-pixel-button');
-  const image = document.getElementById('image-preview');
-  
+  if (!originalImage || isPlaceholder) {
+    alert("Please upload an image first.");
+    return;
+  }
   if (drawEnabled) {
-    button.style.color = '#32c832';
-    image.classList.add('pointer-cursor');
+    drawEnabled = false;
+    const button = document.querySelector('.draw-pixel-button');
+    updateToolUI(button, '#32c832', false);
+    return;
+  }
+  resetTools('draw');
+  drawEnabled = true;
+  const button = document.querySelector('.draw-pixel-button');
+  updateToolUI(button, '#32c832', true);
+}
+
+function updateToolUI(button, color, isActive) {
+  const image = document.getElementById('image-preview');
+  if (isActive) {
+    button.style.color = color;
+    if (image) {
+      image.classList.add('pointer-cursor');
+    }
   } else {
     button.style.color = '';
-    image.classList.remove('pointer-cursor');
+    if (image) {
+      image.classList.remove('pointer-cursor');
+    }
   }
 }
+
 
 function erasePixel(event) {
   const imagePreview = document.getElementById('image-preview');
@@ -335,18 +394,19 @@ function drawPixel(event) {
   const rect = imagePreview.getBoundingClientRect();
   const x = event.clientX - rect.left;
   const y = event.clientY - rect.top;
-
   if (drawEnabled) {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     canvas.width = originalImage.width;
     canvas.height = originalImage.height;
     ctx.drawImage(currentImage, 0, 0);
+    
     const canvasX = Math.floor(x * (originalImage.width / imagePreview.clientWidth));
     const canvasY = Math.floor(y * (originalImage.height / imagePreview.clientHeight));
     console.log(`Drawing at: (${canvasX}, ${canvasY}) with color: ${currentColor}`);
     ctx.fillStyle = currentColor;
     ctx.fillRect(canvasX, canvasY, 1, 1);
+    
     imagePreview.src = canvas.toDataURL();
     const updatedImage = new Image();
     updatedImage.src = canvas.toDataURL();
@@ -355,11 +415,11 @@ function drawPixel(event) {
     };
     saveState(`Drew Pixel at (${canvasX}, ${canvasY}) with color ${currentColor}`);
   }
-
   requestAnimationFrame(() => {
     displayHistory();
   });
 }
+
 
 function changeColor() {
   if (!originalImage || isPlaceholder) {
