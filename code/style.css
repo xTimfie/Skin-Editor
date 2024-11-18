@@ -114,3 +114,15 @@ cursor: pointer;
 input[type="checkbox"] {
   transform: scale(2);
 }
+
+input {
+  background-color: #a6a68f;
+}
+select {
+  background-color: #a6a68f;
+}
+
+select option {
+  background-color: #a6a68f;
+}
+
