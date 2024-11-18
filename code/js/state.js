@@ -1,0 +1,13 @@
+export let originalImage = null;
+export let savedImage = null;
+export let savedFileName = '';
+export let undoStack = [];
+export let redoStack = [];
+export let grayPixels = [];
+export let isPlaceholder = false;
+export let placeholderLoaded = false;
+export let pickingEnabled = false;
+export let eraseEnabled = false;
+export let isMousePressed = false;
+export let drawEnabled = false;
+export let currentColor = '#000000';
