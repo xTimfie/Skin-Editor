@@ -5,12 +5,15 @@ let undoStack = [];
 let redoStack = [];
 let grayPixels = [];
 let isPlaceholder = false;
-let placeholderLoaded = false;
 let pickingEnabled = false;
 let eraseEnabled = false;
 let isMousePressed = false;
 let drawEnabled = false;
 let currentColor = '#000000';
+let currentDesign = 1;
+let imageImported = false;
+
+
 
 document.getElementById('color-picker').addEventListener('input', function(event) {
   currentColor = event.target.value;
@@ -52,13 +55,20 @@ document.getElementById('brightnessSlider').addEventListener('input', function()
       const imagePreview = document.getElementById('image-preview');
       imagePreview.style.borderColor = brightness < 50 ? 'white' : 'black';
     });
-    document.getElementById('image-preview').addEventListener('click', function(event) {
+    document.getElementById('image-preview').addEventListener('click', function (event) {
       const imagePreview = document.getElementById('image-preview');
       const rect = imagePreview.getBoundingClientRect();
-      const x = event.clientX - rect.left;
-      const y = event.clientY - rect.top;
     
-      console.log(`Clicked at: (${x}, ${y})`);
+      // Click coordinates relative to the image
+      const xClick = event.clientX - rect.left;
+      const yClick = event.clientY - rect.top;
+    
+      // Calculate the scaling factor
+      const correctionFactor = imagePreview.naturalWidth / rect.width;
+    
+      // Apply the correction factor
+      const xCanvas = Math.floor(xClick * correctionFactor);
+      const yCanvas = Math.floor(yClick * correctionFactor);
     
       if (pickingEnabled) {
         const canvas = document.createElement('canvas');
@@ -67,9 +77,8 @@ document.getElementById('brightnessSlider').addEventListener('input', function()
         canvas.height = imagePreview.naturalHeight;
         ctx.drawImage(imagePreview, 0, 0, imagePreview.naturalWidth, imagePreview.naturalHeight);
     
-        const pixel = ctx.getImageData(x * (imagePreview.naturalWidth / imagePreview.width), 
-                                       y * (imagePreview.naturalHeight / imagePreview.height), 
-                                       1, 1).data;
+        // Get the color data at the corrected coordinates
+        const pixel = ctx.getImageData(xCanvas, yCanvas, 1, 1).data;
         const hex = rgbToHex(pixel[0], pixel[1], pixel[2]);
         document.getElementById('colorDisplay').value = hex;
         currentColor = hex;
@@ -93,7 +102,7 @@ document.getElementById('brightnessSlider').addEventListener('input', function()
 
 window.onload = function() {
   loadPlaceholder();
-displayImageBackground('#888869');
+displayImageBackground('');
 };
 
 
@@ -105,69 +114,56 @@ function toggleSettingsMenu() {
     }
 
 
-
     function loadPlaceholder() {
-      if (!placeholderLoaded) {
-        const placeholderUrl = 'https://i.imgur.com/auCxTgN.jpg';
-        const preview = document.getElementById('image-preview');
-        preview.src = placeholderUrl;
+      if (!isPlaceholder) {
         const skinViewerPlaceholder = 'https://i.imgur.com/JXntmsC.jpg';
+        
         let styleBlock = document.getElementById('dynamic-style');
         if (!styleBlock) {
           styleBlock = document.createElement('style');
           styleBlock.id = 'dynamic-style';
           document.head.appendChild(styleBlock);
         }
+    
+        // Apply the placeholder background image dynamically to #skin-viewer
         styleBlock.textContent = `#skin-viewer * { background-image: url('${skinViewerPlaceholder}'); }`;
+        
+        // Mark the placeholder as loaded
         isPlaceholder = true;
-        placeholderLoaded = true;
       }
     }
 
 
 
-function undo() {
-  if (undoStack.length > 1) {
-    const currentState = undoStack.pop();
-    redoStack.push(currentState);
-    const previousState = undoStack[undoStack.length - 1];
-    const preview = document.getElementById('image-preview');
-    const img = new Image();
-    img.src = previousState.imgData;
-    img.onload = function() {
-      preview.src = img.src;
-      originalImage = img;
-      displayHistory();
-    };
-  } else {
-    alert("No more actions to undo.");
-  }
-}
+    function undo() {
+      if (undoStack.length > 1) {
+        const currentState = undoStack.pop();
+        redoStack.push(currentState);
+        const previousState = undoStack[undoStack.length - 1];
+        const preview = document.getElementById('image-preview');
+        const img = new Image();
+        img.src = previousState.imgData;
+        img.onload = function() {
+          preview.src = img.src;
+          originalImage = img;
+        };
+      } else {
+        alert("No more actions to undo.");
+      }
+    }
+    function redo() {
+      if (redoStack.length > 0) {
+        const nextState = redoStack.pop();
+        undoStack.push(nextState);
+        const preview = document.getElementById('image-preview');
+        preview.src = nextState.imgData;
+        originalImage = new Image();
+        originalImage.src = nextState.imgData;
+      } else {
+        alert("No more actions to redo.");
+      }
+    }
 
-function redo() {
-  if (redoStack.length > 0) {
-    const nextState = redoStack.pop();
-    undoStack.push(nextState);
-    const preview = document.getElementById('image-preview');
-    preview.src = nextState.imgData;
-    originalImage = new Image();
-    originalImage.src = nextState.imgData;
-    displayHistory();
-  } else {
-    alert("No more actions to redo.");
-  }
-}
-
-
-function displayHistory() {
-  const historyContainer = document.getElementById('history');
-  historyContainer.removeChild(historyContainer.firstChild);
-  undoStack.forEach((state, index) => {
-    const entry = document.createElement('div');
-    entry.textContent = `Step ${index + 1}: ${state.actionDescription || 'Unnamed action'}`;
-    historyContainer.appendChild(entry);
-  });
-}
 
 
 
@@ -189,7 +185,6 @@ function previewImage(event) {
         saveState('Imported custom Image');
         isPlaceholder = false;
         analyzeGrayPixels();
-        displayImageBackground();
         updateSkinViewerStyle(img);
       } else {
         alert("Please upload an image with dimensions 64x64 pixels.");
@@ -229,21 +224,11 @@ function saveState(actionDescription = '') {
       ctx.drawImage(originalImage, 0, 0);
       const imageData = canvas.toDataURL();
       undoStack.push({ imgData: imageData, actionDescription });
-      
+
       if (undoStack.length > 50) {
-        undoStack.shift();
+        undoStack.shift(); // Limit history size
       }
       redoStack = [];
-      const skinViewer = document.getElementById('skin-viewer');
-        let styleBlock = document.getElementById('dynamic-style');
-        if (!styleBlock) {
-          styleBlock = document.createElement('style');
-          styleBlock.id = 'dynamic-style';
-          document.head.appendChild(styleBlock);
-        }
-        styleBlock.textContent = `#skin-viewer * { background-image: url('${skinViewer}'); }`;
-        updateSkinViewerStyle(img);
-      displayHistory();
     };
   } else {
     alert("Please upload an image first.");
@@ -264,6 +249,26 @@ function downloadImage() {
   document.body.removeChild(downloadLink);
 }
 
+function toggleDesign(){
+  if (currentDesign == 1) {
+    currentDesign = 2;
+    document.documentElement.style.setProperty('--text-color', '#27372B');
+    document.documentElement.style.setProperty('--field-color', '#a6a68f');
+    document.documentElement.style.setProperty('--button-color', '#27372B');
+    document.documentElement.style.setProperty('--background-color', '#888869');
+    document.getElementById('background-image').style.backgroundImage = 'url("https://i.imgur.com/jyVh8ng.jpg")';
+    document.getElementById('image-preview').style.imagePreview  = 'url("https://i.imgur.com/6CIBRCf.jpg")';
+  }
+  else {
+    currentDesign = 1;
+    document.documentElement.style.setProperty('--text-color', '#bdbdbd');
+    document.documentElement.style.setProperty('--field-color', '#3b3c3d');
+    document.documentElement.style.setProperty('--button-color', '#ffd69c');
+    document.documentElement.style.setProperty('--background-color', '#1c2025');
+    document.getElementById('background-image').style.backgroundImage = 'url("https://i.imgur.com/0ZDESaJ.jpg")';
+    document.getElementById('image-preview').style.imagePreview = 'url("https://i.imgur.com/cJlVpR8.jpg")';
+  }
+}
 
 function resetTools(excludeTool = null) {
   if (excludeTool !== 'picking') {
@@ -372,68 +377,101 @@ function updateToolUI(button, color, isActive) {
 function erasePixel(event) {
   const imagePreview = document.getElementById('image-preview');
   const rect = imagePreview.getBoundingClientRect();
-  const x = event.clientX - rect.left;
-  const y = event.clientY - rect.top;
 
-  console.log(`Erasing at: (${x}, ${y})`);
+  // Click coordinates relative to the image
+  const xClick = event.clientX - rect.left;
+  const yClick = event.clientY - rect.top;
+
+  // Calculate the scaling factor
+  const correctionFactor = imagePreview.naturalWidth / rect.width;
+
+  // Apply the correction factor
+  const xCanvas = Math.floor(xClick * correctionFactor);
+  const yCanvas = Math.floor(yClick * correctionFactor);
 
   if (eraseEnabled) {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      canvas.width = originalImage.width;
-      canvas.height = originalImage.height;
-      ctx.drawImage(currentImage, 0, 0);
-      const canvasX = Math.floor(x * (originalImage.width / imagePreview.clientWidth));
-      const canvasY = Math.floor(y * (originalImage.height / imagePreview.clientHeight));
-      console.log(`Mapped coordinates: (${canvasX}, ${canvasY})`);
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const data = imageData.data;
-      const index = (canvasY * canvas.width + canvasX) * 4;
-      data[index + 3] = 0;
-      ctx.putImageData(imageData, 0, 0);
-      imagePreview.src = canvas.toDataURL();
-      const updatedImage = new Image();
-      updatedImage.src = canvas.toDataURL();
-      updatedImage.onload = function() {
-          currentImage = updatedImage;
-      };
-      saveState(`Erased Pixel at (${canvasX}, ${canvasY})`);
-  }
-  requestAnimationFrame(() => {
-      displayHistory();
-  });
-}
-
-function drawPixel(event) {
-  const imagePreview = document.getElementById('image-preview');
-  const rect = imagePreview.getBoundingClientRect();
-  const x = event.clientX - rect.left;
-  const y = event.clientY - rect.top;
-  if (drawEnabled) {
     const canvas = document.createElement('canvas');
+    canvas.width = imagePreview.naturalWidth;
+    canvas.height = imagePreview.naturalHeight;
     const ctx = canvas.getContext('2d');
-    canvas.width = originalImage.width;
-    canvas.height = originalImage.height;
     ctx.drawImage(currentImage, 0, 0);
-    
-    const canvasX = Math.floor(x * (originalImage.width / imagePreview.clientWidth));
-    const canvasY = Math.floor(y * (originalImage.height / imagePreview.clientHeight));
-    console.log(`Drawing at: (${canvasX}, ${canvasY}) with color: ${currentColor}`);
-    ctx.fillStyle = currentColor;
-    ctx.fillRect(canvasX, canvasY, 1, 1);
-    
+
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const data = imageData.data;
+    const index = (yCanvas * canvas.width + xCanvas) * 4;
+
+    // Check if the pixel is already fully transparent (erased)
+    if (data[index + 3] === 0) {
+      return; // Don't execute erase if already erased
+    }
+
+    // Make the pixel fully transparent
+    data[index + 3] = 0;
+    ctx.putImageData(imageData, 0, 0);
+
+    // Update image preview
     imagePreview.src = canvas.toDataURL();
     const updatedImage = new Image();
     updatedImage.src = canvas.toDataURL();
     updatedImage.onload = function() {
       currentImage = updatedImage;
     };
-    saveState(`Drew Pixel at (${canvasX}, ${canvasY}) with color ${currentColor}`);
+
+    saveState(`Erased Pixel at (${xCanvas}, ${yCanvas})`);
   }
-  requestAnimationFrame(() => {
-    displayHistory();
-  });
 }
+
+
+function drawPixel(event) {
+  const imagePreview = document.getElementById('image-preview');
+  const rect = imagePreview.getBoundingClientRect();
+
+  // Click coordinates relative to the image
+  const xClick = event.clientX - rect.left;
+  const yClick = event.clientY - rect.top;
+
+  // Calculate the scaling factor
+  const correctionFactor = imagePreview.naturalWidth / rect.width;
+
+  // Apply the correction factor
+  const xCanvas = Math.floor(xClick * correctionFactor);
+  const yCanvas = Math.floor(yClick * correctionFactor);
+
+  if (drawEnabled) {
+    const canvas = document.createElement('canvas');
+    canvas.width = imagePreview.naturalWidth;
+    canvas.height = imagePreview.naturalHeight;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(currentImage, 0, 0);
+
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const data = imageData.data;
+    const index = (yCanvas * canvas.width + xCanvas) * 4;
+
+    // Check if the pixel already has the desired color (currentColor)
+    const currentPixelColor = `rgba(${data[index]}, ${data[index + 1]}, ${data[index + 2]}, ${data[index + 3] / 255})`;
+    const targetColor = currentColor;  // Ensure currentColor is a string like 'rgb(r, g, b)' or 'rgba(r, g, b, a)'
+
+    if (currentPixelColor === targetColor) {
+      return; // Don't execute draw if the pixel is already the target color
+    }
+
+    // Draw the pixel with the current color
+    ctx.fillStyle = currentColor;
+    ctx.fillRect(xCanvas, yCanvas, 1, 1);
+
+    // Update image preview
+    imagePreview.src = canvas.toDataURL();
+    const updatedImage = new Image();
+    updatedImage.src = canvas.toDataURL();
+    updatedImage.onload = function() {
+      currentImage = updatedImage;
+    };
+
+    saveState(`Drew Pixel at (${xCanvas}, ${yCanvas})`);
+  }
+}
+
 
 
 function changeColor() {
@@ -937,6 +975,7 @@ function displayImageBackground(backgroundcolor) {
     if (!square) {
       square = document.createElement('div');
       square.id = id;
+      square.classList.add('square');
       square.style.position = 'absolute';
       square.style.zIndex = '-2';
       document.body.appendChild(square);
@@ -945,7 +984,7 @@ function displayImageBackground(backgroundcolor) {
     square.style.left = position.left;
     square.style.width = position.width;
     square.style.height = position.height;
-    square.style.backgroundColor = backgroundcolor || '#888869';
+    document.documentElement.style.setProperty('--background-color', backgroundcolor);
   }
   createSquare('image-background-square-1', square1Position);
   createSquare('image-background-square-2', square2Position);
