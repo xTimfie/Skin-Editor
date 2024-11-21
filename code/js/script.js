@@ -12,6 +12,7 @@ let drawEnabled = false;
 let currentColor = '#000000';
 let currentDesign = 1;
 let imageImported = false;
+const clipboard = [null, null, null, null];
 
 
 
@@ -58,15 +59,9 @@ document.getElementById('brightnessSlider').addEventListener('input', function()
     document.getElementById('image-preview').addEventListener('click', function (event) {
       const imagePreview = document.getElementById('image-preview');
       const rect = imagePreview.getBoundingClientRect();
-    
-      // Click coordinates relative to the image
       const xClick = event.clientX - rect.left;
       const yClick = event.clientY - rect.top;
-    
-      // Calculate the scaling factor
       const correctionFactor = imagePreview.naturalWidth / rect.width;
-    
-      // Apply the correction factor
       const xCanvas = Math.floor(xClick * correctionFactor);
       const yCanvas = Math.floor(yClick * correctionFactor);
     
@@ -76,8 +71,6 @@ document.getElementById('brightnessSlider').addEventListener('input', function()
         canvas.width = imagePreview.naturalWidth;
         canvas.height = imagePreview.naturalHeight;
         ctx.drawImage(imagePreview, 0, 0, imagePreview.naturalWidth, imagePreview.naturalHeight);
-    
-        // Get the color data at the corrected coordinates
         const pixel = ctx.getImageData(xCanvas, yCanvas, 1, 1).data;
         const hex = rgbToHex(pixel[0], pixel[1], pixel[2]);
         document.getElementById('colorDisplay').value = hex;
@@ -96,7 +89,7 @@ document.getElementById('brightnessSlider').addEventListener('input', function()
     });
 
     document.getElementById('color-from-picker').addEventListener('change', function(event) {
-      pickingEnabled = event.target.checked;  // Set pickingEnabled based on the checkbox state
+      pickingEnabled = event.target.checked;
       console.log(pickingEnabled ? "Color picker enabled." : "Color picker disabled.");
     });
 
@@ -104,6 +97,70 @@ window.onload = function() {
   loadPlaceholder();
 displayImageBackground('');
 };
+
+
+
+
+function clipboardSave(slot) {
+  const preview = document.getElementById('image-preview');
+  if (!preview.src) {
+    alert('No image to save to clipboard.');
+    return;
+  }
+  if (slot < 1 || slot > 4) {
+    alert('Invalid clipboard slot.');
+    return;
+  }
+  clipboard[slot - 1] = preview.src;
+  const clipboardImage = document.getElementById(`clipboard-${slot}-image`);
+  clipboardImage.src = preview.src;
+}
+
+function clipboardLoad(slot) {
+  if (slot < 1 || slot > 4) {
+    alert('Invalid clipboard slot.');
+    return;
+  }
+  const clipboardImageSrc = clipboard[slot - 1];
+  if (!clipboardImageSrc) {
+    alert(`Clipboard slot ${slot} is empty.`);
+    return;
+  }
+  const preview = document.getElementById('image-preview');
+  if (!preview.src) {
+    preview.src = clipboardImageSrc;
+    const newImage = new Image();
+    newImage.src = clipboardImageSrc;
+    newImage.onload = function () {
+      originalImage = newImage;
+    };
+    saveState(`Loaded Clipboard Slot ${slot} as New Preview`);
+    return;
+  }
+  const baseImage = new Image();
+  baseImage.src = preview.src;
+  const overlayImage = new Image();
+  overlayImage.src = clipboardImageSrc;
+  baseImage.onload = function () {
+    overlayImage.onload = function () {
+      const canvas = document.createElement('canvas');
+      canvas.width = baseImage.width;
+      canvas.height = baseImage.height;
+
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
+      ctx.drawImage(overlayImage, 0, 0, canvas.width, canvas.height);
+      preview.src = canvas.toDataURL();
+      const combinedImage = new Image();
+      combinedImage.src = canvas.toDataURL();
+      combinedImage.onload = function () {
+        originalImage = combinedImage;
+      };
+      saveState(`Overlayed Clipboard Slot ${slot} Image`);
+    };
+  };
+}
+
 
 
 function toggleSettingsMenu() {
@@ -124,11 +181,7 @@ function toggleSettingsMenu() {
           styleBlock.id = 'dynamic-style';
           document.head.appendChild(styleBlock);
         }
-    
-        // Apply the placeholder background image dynamically to #skin-viewer
         styleBlock.textContent = `#skin-viewer * { background-image: url('${skinViewerPlaceholder}'); }`;
-        
-        // Mark the placeholder as loaded
         isPlaceholder = true;
       }
     }
@@ -224,9 +277,9 @@ function saveState(actionDescription = '') {
       ctx.drawImage(originalImage, 0, 0);
       const imageData = canvas.toDataURL();
       undoStack.push({ imgData: imageData, actionDescription });
-
+      updateSkinViewerStyle(img);
       if (undoStack.length > 50) {
-        undoStack.shift(); // Limit history size
+        undoStack.shift();
       }
       redoStack = [];
     };
@@ -257,7 +310,8 @@ function toggleDesign(){
     document.documentElement.style.setProperty('--button-color', '#27372B');
     document.documentElement.style.setProperty('--background-color', '#888869');
     document.getElementById('background-image').style.backgroundImage = 'url("https://i.imgur.com/jyVh8ng.jpg")';
-    document.getElementById('image-preview').style.imagePreview  = 'url("https://i.imgur.com/6CIBRCf.jpg")';
+    document.getElementById('image-preview').style.backgroundImage  = 'url("https://i.imgur.com/auCxTgN.jpg")';
+    document.documentElement.style.setProperty('--website-background-color', '#c7b571');
   }
   else {
     currentDesign = 1;
@@ -265,8 +319,9 @@ function toggleDesign(){
     document.documentElement.style.setProperty('--field-color', '#3b3c3d');
     document.documentElement.style.setProperty('--button-color', '#ffd69c');
     document.documentElement.style.setProperty('--background-color', '#1c2025');
-    document.getElementById('background-image').style.backgroundImage = 'url("https://i.imgur.com/0ZDESaJ.jpg")';
-    document.getElementById('image-preview').style.imagePreview = 'url("https://i.imgur.com/cJlVpR8.jpg")';
+    document.getElementById('background-image').style.backgroundImage = 'url("https://i.imgur.com/E4qkPuL.jpg")';
+    document.getElementById('image-preview').style.backgroundImage = 'url("https://i.imgur.com/cJlVpR8.jpg")';
+    document.documentElement.style.setProperty('--website-background-color', '#555555');
   }
 }
 
@@ -377,15 +432,9 @@ function updateToolUI(button, color, isActive) {
 function erasePixel(event) {
   const imagePreview = document.getElementById('image-preview');
   const rect = imagePreview.getBoundingClientRect();
-
-  // Click coordinates relative to the image
   const xClick = event.clientX - rect.left;
   const yClick = event.clientY - rect.top;
-
-  // Calculate the scaling factor
   const correctionFactor = imagePreview.naturalWidth / rect.width;
-
-  // Apply the correction factor
   const xCanvas = Math.floor(xClick * correctionFactor);
   const yCanvas = Math.floor(yClick * correctionFactor);
 
@@ -399,17 +448,11 @@ function erasePixel(event) {
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const data = imageData.data;
     const index = (yCanvas * canvas.width + xCanvas) * 4;
-
-    // Check if the pixel is already fully transparent (erased)
     if (data[index + 3] === 0) {
-      return; // Don't execute erase if already erased
+      return;
     }
-
-    // Make the pixel fully transparent
     data[index + 3] = 0;
     ctx.putImageData(imageData, 0, 0);
-
-    // Update image preview
     imagePreview.src = canvas.toDataURL();
     const updatedImage = new Image();
     updatedImage.src = canvas.toDataURL();
@@ -425,15 +468,9 @@ function erasePixel(event) {
 function drawPixel(event) {
   const imagePreview = document.getElementById('image-preview');
   const rect = imagePreview.getBoundingClientRect();
-
-  // Click coordinates relative to the image
   const xClick = event.clientX - rect.left;
   const yClick = event.clientY - rect.top;
-
-  // Calculate the scaling factor
   const correctionFactor = imagePreview.naturalWidth / rect.width;
-
-  // Apply the correction factor
   const xCanvas = Math.floor(xClick * correctionFactor);
   const yCanvas = Math.floor(yClick * correctionFactor);
 
@@ -447,20 +484,14 @@ function drawPixel(event) {
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const data = imageData.data;
     const index = (yCanvas * canvas.width + xCanvas) * 4;
-
-    // Check if the pixel already has the desired color (currentColor)
     const currentPixelColor = `rgba(${data[index]}, ${data[index + 1]}, ${data[index + 2]}, ${data[index + 3] / 255})`;
-    const targetColor = currentColor;  // Ensure currentColor is a string like 'rgb(r, g, b)' or 'rgba(r, g, b, a)'
+    const targetColor = currentColor;
 
     if (currentPixelColor === targetColor) {
-      return; // Don't execute draw if the pixel is already the target color
+      return;
     }
-
-    // Draw the pixel with the current color
     ctx.fillStyle = currentColor;
     ctx.fillRect(xCanvas, yCanvas, 1, 1);
-
-    // Update image preview
     imagePreview.src = canvas.toDataURL();
     const updatedImage = new Image();
     updatedImage.src = canvas.toDataURL();
@@ -968,8 +999,17 @@ function updatePosition() {
 }
 
 function displayImageBackground(backgroundcolor) {
-  const square1Position = { top: '232px', left: '326px', width: '640px', height: '640px'};
-  const square2Position = { top: '920px', left: '550px', width: '450px', height: '700px'};
+  const square1Position = { top: '232px', left: '326px', width: '640px', height: '640px' };
+  const square2Position = { top: '920px', left: '550px', width: '450px', height: '700px' };
+  
+  // New square positions
+  const clipboardSquarePositions = [
+    { top: '1685px', left: '592px', width: '640px', height: '640px' },
+    { top: '1685px', left: '1265px', width: '640px', height: '640px' },
+    { top: '2358px', left: '592px', width: '640px', height: '640px' },
+    { top: '2358px', left: '1265px', width: '640px', height: '640px' }
+  ];
+
   function createSquare(id, position) {
     let square = document.getElementById(id);
     if (!square) {
@@ -977,7 +1017,7 @@ function displayImageBackground(backgroundcolor) {
       square.id = id;
       square.classList.add('square');
       square.style.position = 'absolute';
-      square.style.zIndex = '-2';
+      square.style.zIndex = '-3';
       document.body.appendChild(square);
     }
     square.style.top = position.top;
@@ -988,6 +1028,9 @@ function displayImageBackground(backgroundcolor) {
   }
   createSquare('image-background-square-1', square1Position);
   createSquare('image-background-square-2', square2Position);
+  clipboardSquarePositions.forEach((position, index) => {
+    createSquare('image-background-square-' + (index + 3), position);
+  });
 }
 document.getElementById('background-color-picker').addEventListener('input', function () {
   displayImageBackground(this.value);
