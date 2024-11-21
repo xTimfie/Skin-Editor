@@ -12,7 +12,7 @@
 <body>
 
 
-<img class="webside-background" src="https://i.imgur.com/6CIBRCf.jpg" id="background-image" alt="Background Image" style="top: 100px;left: 100px;">
+<img class="webside-background" alt="Background Image"  id="background-image" draggable="false" aria-hidden="true">
 
 
 <div class="settings-panel" id="settingsPanel">
@@ -34,12 +34,13 @@
 </div>
 
 <div class="options-left">
-  <div class="upload-button" onclick="document.getElementById('file-input').click();"><b><i class="fa fa-upload" style="position: absolute;top: 234px;left: 192px;z-index: 0;cursor: pointer;font-size:64px;color:rgb(39,	55,	43);text-shadow:2px 2px 4px #00000060;"></i></b></div>
-  <div class="download-button" onclick="downloadImage()"><b><i class="fa fa-download" style="position: absolute;top: 360px;left: 192px;z-index: 0;cursor: pointer;font-size:64px;color:rgb(39,	55,	43);text-shadow:2px 2px 4px #00000060;"></i></b></div>
-  <div class="signature-button" onclick="overlaySignature()"><b><i class="fa fa-pencil" style="position: absolute;top: 475px;left: 194px;z-index: 0;cursor: pointer;font-size:64px;color:rgb(39,	55,	43);text-shadow:2px 2px 4px #00000060;"></i></b></div>
-  <div class="undo-button" onclick="undo()"><b><i class="fa fa-undo" style="position: absolute;top: 595px;left: 194px;z-index: 0;cursor: pointer;font-size:64px;color:rgb(39,	55,	43);text-shadow:2px 2px 4px #00000060;"></i></b></div>
-  <div class="redo-button" onclick="redo()"><b><i class="fa fa-repeat" style="position: absolute;top: 715px;left: 194px;z-index: 0;cursor: pointer;font-size:64px;color:rgb(39,	55,	43);text-shadow:2px 2px 4px #00000060;"></i></b></div>
-  <div class="settings-button" onclick="toggleSettingsMenu()"><i class="fa fa-cog" style="position: absolute;top: 840px;left: 192px;z-index: 0;cursor: pointer;font-size:64px;color:rgb(39,	55,	43);text-shadow:2px 2px 4px #00000060;"></i></div>
+  <div class="upload-button" onclick="document.getElementById('file-input').click();"><b><i class="fa fa-upload" style="position: absolute;top: 234px;left: 192px;z-index: 0;cursor: pointer;font-size:64px;text-shadow:2px 2px 4px #00000060;"></i></b></div>
+  <div class="download-button" onclick="downloadImage()"><b><i class="fa fa-download" style="position: absolute;top: 360px;left: 192px;z-index: 0;cursor: pointer;font-size:64px;text-shadow:2px 2px 4px #00000060;"></i></b></div>
+  <div class="signature-button" onclick="overlaySignature()"><b><i class="fa fa-pencil" style="position: absolute;top: 475px;left: 194px;z-index: 0;cursor: pointer;font-size:64px;text-shadow:2px 2px 4px #00000060;"></i></b></div>
+  <div class="undo-button" onclick="undo()"><b><i class="fa fa-undo" style="position: absolute;top: 595px;left: 194px;z-index: 0;cursor: pointer;font-size:64px;text-shadow:2px 2px 4px #00000060;"></i></b></div>
+  <div class="redo-button" onclick="redo()"><b><i class="fa fa-repeat" style="position: absolute;top: 715px;left: 194px;z-index: 0;cursor: pointer;font-size:64px;text-shadow:2px 2px 4px #00000060;"></i></b></div>
+  <div class="settings-button" onclick="toggleSettingsMenu()"><i class="fa fa-cog" style="position: absolute;top: 840px;left: 192px;z-index: 0;cursor: pointer;font-size:64px;text-shadow:2px 2px 4px #00000060;"></i></div>
+  <div class="design-button" onclick="toggleDesign()"><i class="fa fa-paint-brush" style="position: absolute;top: 955px;left: 192px;z-index: 0;cursor: pointer;font-size:64px;text-shadow:2px 2px 4px #00000060;"></i></div>
 </div>
 
 <div class="options-right">
