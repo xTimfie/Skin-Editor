@@ -1,3 +1,14 @@
+:root {
+  --text-color: #bdbdbd;
+  --field-color: #3b3c3d;
+  --button-color: #ffd69c;
+  --background-color: #1c2025;
+  --background-image: url("https://i.imgur.com/0ZDESaJ.jpg");
+  --placeholder-image: url("https://i.imgur.com/cJlVpR8.jpg");
+}
+
+
+
 body {
   display: flex;
   justify-content: center;
@@ -24,28 +35,40 @@ height: 640px;
 image-rendering: pixelated;
 position: absolute;
 z-index: 1;
+background-image: var(--placeholder-image);
+background-size: cover;
+background-repeat: no-repeat;
+image-rendering: pixelated;
 }
 #background-image {
-width: 1931px;
-height: auto;
-image-rendering: pixelated;
-position: absolute;
+  position: absolute;
+  top: 100px;
+  left: 100px;
+  width: 1931px;
+  height: 1545px;
   z-index: -1;
+  background-image: var(--background-image);
+  background-size: cover;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
 }
 
-.history-container {
-max-height: 150px;
-overflow-y: auto;
-border: 1px solid #ccc;
-padding: 10px;
-margin-top: 10px;
-font-size: 14px;
-background-color: #f9f9f9;
-z-index: 1;
+img[alt] {
+  text-indent: -9999px;
 }
-.history-container div {
-margin-bottom: 5px;
+img {display: block;}
+
+img {
+  object-fit: cover; /* This will scale the image to fit its container */
 }
+
+.options-left{
+  color: var(--button-color);
+}
+.options-right, .options-right button{
+  color: var(--text-color);
+}
+
 button {
 border: none;
 background-color: transparent;
@@ -109,16 +132,20 @@ color: #007bff;
 cursor: pointer;
 }
 
+.square {
+  background-color: var(--background-color);
+}
+
 #skin-viewer *{ background-image: "image-preview"; }
 
 input {
-  background-color: #a6a68f;
+  background-color: var(--field-color);
 }
 select {
-  background-color: #a6a68f;
+  background-color: var(--field-color);
 }
 
 select option {
-  background-color: #a6a68f;
+  background-color: var(--field-color);
 }
 
