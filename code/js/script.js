@@ -309,9 +309,10 @@ function toggleDesign(){
     document.documentElement.style.setProperty('--field-color', '#a6a68f');
     document.documentElement.style.setProperty('--button-color', '#27372B');
     document.documentElement.style.setProperty('--background-color', '#888869');
-    document.getElementById('background-image').style.backgroundImage = 'url("https://i.imgur.com/jyVh8ng.jpg")';
+    document.getElementById('background-image').style.backgroundImage = 'url("https://i.imgur.com/tqhjkEO.jpg")';
     document.getElementById('image-preview').style.backgroundImage  = 'url("https://i.imgur.com/auCxTgN.jpg")';
     document.documentElement.style.setProperty('--website-background-color', '#c7b571');
+    document.documentElement.style.setProperty('--clipboard-icon-color', '#27372B');
   }
   else {
     currentDesign = 1;
@@ -322,6 +323,7 @@ function toggleDesign(){
     document.getElementById('background-image').style.backgroundImage = 'url("https://i.imgur.com/E4qkPuL.jpg")';
     document.getElementById('image-preview').style.backgroundImage = 'url("https://i.imgur.com/cJlVpR8.jpg")';
     document.documentElement.style.setProperty('--website-background-color', '#555555');
+    document.documentElement.style.setProperty('--clipboard-icon-color', '#ffd69c');
   }
 }
 
