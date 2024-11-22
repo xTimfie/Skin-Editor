@@ -121,45 +121,31 @@ function clipboardLoad(slot) {
     alert('Invalid clipboard slot.');
     return;
   }
+
   const clipboardImageSrc = clipboard[slot - 1];
   if (!clipboardImageSrc) {
     alert(`Clipboard slot ${slot} is empty.`);
     return;
   }
   const preview = document.getElementById('image-preview');
-  if (!preview.src) {
-    preview.src = clipboardImageSrc;
-    const newImage = new Image();
-    newImage.src = clipboardImageSrc;
-    newImage.onload = function () {
-      originalImage = newImage;
-    };
-    saveState(`Loaded Clipboard Slot ${slot} as New Preview`);
-    return;
-  }
-  const baseImage = new Image();
-  baseImage.src = preview.src;
-  const overlayImage = new Image();
-  overlayImage.src = clipboardImageSrc;
-  baseImage.onload = function () {
-    overlayImage.onload = function () {
-      const canvas = document.createElement('canvas');
-      canvas.width = baseImage.width;
-      canvas.height = baseImage.height;
+  preview.src = clipboardImageSrc;
+  const newImage = new Image();
+  newImage.src = clipboardImageSrc;
 
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
-      ctx.drawImage(overlayImage, 0, 0, canvas.width, canvas.height);
-      preview.src = canvas.toDataURL();
-      const combinedImage = new Image();
-      combinedImage.src = canvas.toDataURL();
-      combinedImage.onload = function () {
-        originalImage = combinedImage;
-      };
-      saveState(`Overlayed Clipboard Slot ${slot} Image`);
-    };
+  newImage.onload = function () {
+    originalImage = newImage;
+    saveState(`Loaded Clipboard Slot ${slot} Image`);
   };
 }
+
+function overlaySelectedSource() {
+  const source = document.getElementById('overlay-source-select').value;
+  overlayImage(source);
+}
+
+
+
+
 
 
 
@@ -782,68 +768,111 @@ function makeBlackAndWhite() {
 }
 
 
-function overlayCustomImage(event) {
+function overlayImage(source) {
   if (!originalImage || isPlaceholder) {
-      alert("Please upload an image first.");
-      return;
+    alert("Please upload a base image first.");
+    return;
   }
-  const file = event.target.files[0];
-  if (!file) return;
-  const overlayImage = new Image();
-  overlayImage.src = URL.createObjectURL(file);
-  overlayImage.onload = function () {
-      const canvas = document.createElement('canvas');
-      canvas.width = 64;
-      canvas.height = 64;
-      const ctx = canvas.getContext('2d');
-      const placement = document.getElementById('placement-select').value;
-      const gravityEnabled = document.getElementById('gravity-toggle').checked;
-      ctx.drawImage(originalImage, 0, 0, 64, 64);
-      const imageData = ctx.getImageData(0, 0, 64, 64);
-      const data = imageData.data;
-      const overlayCanvas = document.createElement('canvas');
-      overlayCanvas.width = overlayImage.width;
-      overlayCanvas.height = overlayImage.height;
-      const overlayCtx = overlayCanvas.getContext('2d');
-      overlayCtx.drawImage(overlayImage, 0, 0);
-      const overlayData = overlayCtx.getImageData(0, 0, overlayImage.width, overlayImage.height);
-      const overlayPixels = overlayData.data;
-      for (let y = 0; y < overlayImage.height; y++) {
-          for (let x = 0; x < overlayImage.width; x++) {
-              const idx = (y * overlayImage.width + x) * 4;
-              const overlayAlpha = overlayPixels[idx + 3];
-              if (overlayAlpha > 0) {
-                  if (gravityEnabled) {
-                      const targetIdx = (y * 64 + x) * 4;
-                      const originalAlpha = data[targetIdx + 3];
-                      if (originalAlpha > 0) {
-                          data[targetIdx] = overlayPixels[idx];
-                          data[targetIdx + 1] = overlayPixels[idx + 1];
-                          data[targetIdx + 2] = overlayPixels[idx + 2];
-                          data[targetIdx + 3] = 255;
-                      }
-                  } else {
-                      const targetIdx = (y * 64 + x) * 4;
-                      data[targetIdx] = overlayPixels[idx];
-                      data[targetIdx + 1] = overlayPixels[idx + 1];
-                      data[targetIdx + 2] = overlayPixels[idx + 2];
-                      data[targetIdx + 3] = 255;
-                  }
-              }
-          }
-      }
-      ctx.putImageData(imageData, 0, 0);
-      const preview = document.getElementById('image-preview');
-      preview.src = canvas.toDataURL();
-      const combinedImage = new Image();
-      combinedImage.src = canvas.toDataURL();
-      originalImage = combinedImage;
-      saveState('Applied a custom Image Overlay');
-  };
-  overlayImage.onerror = function () {
-      alert('Error loading the overlay image.');
-  };
+
+  if (source === 'file') {
+    const fileInput = document.getElementById('overlay-file-input');
+    fileInput.click();
+    fileInput.onchange = function (event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const overlayImage = new Image();
+      overlayImage.src = URL.createObjectURL(file);
+
+      overlayImage.onload = function () {
+        processOverlay(overlayImage);
+      };
+
+      overlayImage.onerror = function () {
+        alert('Error loading the overlay file.');
+      };
+    };
+  } else {
+    const slot = parseInt(source.replace('clipboard', ''), 10);
+
+    if (slot < 1 || slot > 4 || !clipboard[slot - 1]) {
+      alert(`Clipboard slot ${slot} is empty or invalid.`);
+      return;
+    }
+
+    const overlayImage = new Image();
+    overlayImage.src = clipboard[slot - 1];
+
+    overlayImage.onload = function () {
+      processOverlay(overlayImage);
+    };
+
+    overlayImage.onerror = function () {
+      alert(`Error loading image from Clipboard Slot ${slot}.`);
+    };
+    saveState('Overlayed Image');
+  }
 }
+
+
+function processOverlay(overlayImage) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 64;
+  canvas.height = 64;
+
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(originalImage, 0, 0, 64, 64);
+
+  const placement = document.getElementById('placement-select').value;
+  const gravityEnabled = document.getElementById('gravity-toggle').checked;
+  const imageData = ctx.getImageData(0, 0, 64, 64);
+  const data = imageData.data;
+
+  const overlayCanvas = document.createElement('canvas');
+  overlayCanvas.width = overlayImage.width;
+  overlayCanvas.height = overlayImage.height;
+  const overlayCtx = overlayCanvas.getContext('2d');
+  overlayCtx.drawImage(overlayImage, 0, 0);
+
+  const overlayData = overlayCtx.getImageData(0, 0, overlayImage.width, overlayImage.height);
+  const overlayPixels = overlayData.data;
+  for (let y = 0; y < overlayImage.height; y++) {
+    for (let x = 0; x < overlayImage.width; x++) {
+      const idx = (y * overlayImage.width + x) * 4;
+      const overlayAlpha = overlayPixels[idx + 3];
+
+      if (overlayAlpha > 0) {
+        const targetIdx = (y * 64 + x) * 4;
+
+        if (gravityEnabled) {
+          const originalAlpha = data[targetIdx + 3];
+          if (originalAlpha > 0) {
+            data[targetIdx] = overlayPixels[idx];
+            data[targetIdx + 1] = overlayPixels[idx + 1];
+            data[targetIdx + 2] = overlayPixels[idx + 2];
+            data[targetIdx + 3] = 255;
+          }
+        } else {
+          data[targetIdx] = overlayPixels[idx];
+          data[targetIdx + 1] = overlayPixels[idx + 1];
+          data[targetIdx + 2] = overlayPixels[idx + 2];
+          data[targetIdx + 3] = 255;
+        }
+      }
+    }
+  }
+  ctx.putImageData(imageData, 0, 0);
+
+  const preview = document.getElementById('image-preview');
+  preview.src = canvas.toDataURL();
+
+  const combinedImage = new Image();
+  combinedImage.src = canvas.toDataURL();
+  originalImage = combinedImage;
+
+  saveState(`Overlayed ${placement} with Gravity: ${gravityEnabled}`);
+}
+
 
 function isTransparent(y, x, imageData) {
   const idx = (y * 64 + x) * 4;
