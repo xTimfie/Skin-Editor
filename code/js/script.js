@@ -16,6 +16,8 @@ const clipboard = [null, null, null, null];
 
 
 
+
+
 document.getElementById('color-picker').addEventListener('input', function(event) {
   currentColor = event.target.value;
   console.log("Selected color from picker:", currentColor);
@@ -232,6 +234,7 @@ function toggleSettingsMenu() {
         };
       }
     }
+
 
 function updateSkinViewerStyle(image) {
   const canvas = document.createElement('canvas');
@@ -1030,11 +1033,18 @@ function updatePosition() {
   }
 }
 
+function toggleSkinViewerSkinSize() {
+  var skinViewer = document.getElementById("skin-viewer");
+  if (skinViewer.classList.contains("slim")) {
+      skinViewer.classList.remove("slim");
+  } else {
+      skinViewer.classList.add("slim");
+  }
+}
+
 function displayImageBackground(backgroundcolor) {
   const square1Position = { top: '232px', left: '326px', width: '640px', height: '640px' };
   const square2Position = { top: '920px', left: '550px', width: '450px', height: '700px' };
-  
-  // New square positions
   const clipboardSquarePositions = [
     { top: '1685px', left: '592px', width: '640px', height: '640px' },
     { top: '1685px', left: '1265px', width: '640px', height: '640px' },
