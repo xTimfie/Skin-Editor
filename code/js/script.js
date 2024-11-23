@@ -206,31 +206,32 @@ function toggleSettingsMenu() {
 
 
 
-function previewImage(event) {
-  const file = event.target.files[0];
-  if (file) {
-    savedFileName = file.name.split('.').slice(0, -1).join('.');
-    const img = new Image();
-    img.src = URL.createObjectURL(file);
-    img.onload = function() {
-      if (img.width === 64 && img.height === 64) {
-        originalImage = img;
-        currentImage = img;
-        const preview = document.getElementById('image-preview');
-        preview.src = img.src;
-        preview.style.display = 'block';
-        undoStack = [];
-        redoStack = [];
-        saveState('Imported custom Image');
-        isPlaceholder = false;
-        analyzeGrayPixels();
-        updateSkinViewerStyle(img);
-      } else {
-        alert("Please upload an image with dimensions 64x64 pixels.");
+    function previewImage(event) {
+      const file = event.target.files[0];
+      if (file) {
+        savedFileName = file.name.split('.').slice(0, -1).join('.');
+        const img = new Image();
+        img.src = URL.createObjectURL(file);
+        img.onload = function () {
+          if (img.width === 64 && img.height === 64) {
+            originalImage = img;
+            currentImage = img;
+            const preview = document.getElementById('image-preview');
+            preview.src = img.src;
+            preview.style.display = 'block';
+            preview.style.backgroundImage = 'none';
+            isPlaceholder = false;
+            undoStack = [];
+            redoStack = [];
+            saveState('Imported custom Image');
+            analyzeGrayPixels();
+            updateSkinViewerStyle(img);
+          } else {
+            alert("Please upload an image with dimensions 64x64 pixels.");
+          }
+        };
       }
-    };
-  }
-}
+    }
 
 function updateSkinViewerStyle(image) {
   const canvas = document.createElement('canvas');
