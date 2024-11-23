@@ -161,3 +161,6 @@ select option {
   image-rendering: pixelated;
 }
 
+.skin-preview-options{
+  color: var(--button-color);
+}
