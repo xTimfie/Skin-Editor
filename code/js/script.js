@@ -187,6 +187,7 @@ function toggleSettingsMenu() {
         img.onload = function() {
           preview.src = img.src;
           originalImage = img;
+          updateSkinViewerStyle(img);
         };
       } else {
         alert("No more actions to undo.");
@@ -200,6 +201,7 @@ function toggleSettingsMenu() {
         preview.src = nextState.imgData;
         originalImage = new Image();
         originalImage.src = nextState.imgData;
+        updateSkinViewerStyle(img);
       } else {
         alert("No more actions to redo.");
       }
