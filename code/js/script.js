@@ -217,7 +217,6 @@ function toggleSettingsMenu() {
         const img = new Image();
         img.src = URL.createObjectURL(file);
         img.onload = function () {
-          if (img.width === 64 && img.height === 64) {
             originalImage = img;
             currentImage = img;
             const preview = document.getElementById('image-preview');
@@ -230,9 +229,6 @@ function toggleSettingsMenu() {
             saveState('Imported custom Image');
             analyzeGrayPixels();
             updateSkinViewerStyle(img);
-          } else {
-            alert("Please upload an image with dimensions 64x64 pixels.");
-          }
         };
       }
     }
